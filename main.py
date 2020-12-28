@@ -9,7 +9,7 @@ from pymongo import MongoClient
 
 bot = commands.Bot(command_prefix='!')
 
-BOT_TOKEN = "Nzg5OTg2NzA4OTM0NDkyMTkw.X96CdA.VGvvIDUofs9g7bqIqEHzR5o9Shs"
+BOT_TOKEN = ""
 
 cluster = MongoClient("")
 
