@@ -2,6 +2,7 @@ import os
 import discord
 import json
 import socket
+import random
 import string
 from getmac import get_mac_address as gma
 from discord.ext import commands
@@ -9,13 +10,12 @@ from pymongo import MongoClient
 
 bot = commands.Bot(command_prefix='!')
 
-BOT_TOKEN = ""
-
 cluster = MongoClient("")
+#left blank because of security
 
 db = cluster["Authentication"]
 
-collection = db["SoftwareLicenses"]
+collection = db["testing2"]
 
 key_generate_list = []
 
@@ -24,6 +24,7 @@ async def on_ready():
     print('Online')
 
 @bot.command()
+@commands.has_role(803449976600264724)
 async def generate(ctx, arg1, arg2):
     key_count = int(arg1)
     key_type = arg2
@@ -31,31 +32,31 @@ async def generate(ctx, arg1, arg2):
         for i in range(key_count):
             key = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
             await ctx.send(key)
-            post = {"Key": key, "Bound": "False", "Active": "False", "Key-Type": "Lifetime", "Suspended": "No", "User bound to": "null", "Mac Address": "null", "IP Address": "null"}
+            post = {"Key": key, "Bound": "False", "Active": "False", "Key-Type": "Lifetime", "Suspended": "False", "User bound to": "null", "Mac Address": "null", "IP Address": "null", "Claimed": "Null(generated)"}
             collection.insert_one(post)
     if key_type == "renewal":
         for i in range(key_count):
             key = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
             await ctx.send(key)
-            post = {"Key": key, "Bound": "False", "Active": "False", "Key-Type": "Renewal", "Suspended": "No", "User bound to": "null", "Mac Address": "null", "IP Address": "null"}
+            post = {"Key": key, "Bound": "False", "Active": "False", "Key-Type": "Renewal", "Suspended": "False", "User bound to": "null", "Mac Address": "null", "IP Address": "null", "Claimed": "Null(generated)"}
             collection.insert_one(post)
     if key_type == "beta":
         for i in range(key_count):
             key = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
             await ctx.send(key)
-            post = {"Key": key, "Bound": "False", "Active": "False", "Key-Type": "Beta", "Suspended": "No", "User bound to": "null", "Mac Address": "null", "IP Address": "null"}
+            post = {"Key": key, "Bound": "False", "Active": "False", "Key-Type": "Beta", "Suspended": "False", "User bound to": "null", "Mac Address": "null", "IP Address": "null", "Claimed": "Null(generated)"}
             collection.insert_one(post)
     if key_type == "fnf":
         for i in range(key_count):
             key = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
             await ctx.send(key)
-            post = {"Key": key, "Bound": "False", "Active": "False", "Key-Type": "Friends and Family", "Suspended": "No", "User bound to": "null", "Mac Address": "null", "IP Address": "null"}
+            post = {"Key": key, "Bound": "False", "Active": "False", "Key-Type": "Friends and Family", "Suspended": "False", "User bound to": "null", "Mac Address": "null", "IP Address": "null", "Claimed": "Null(generated)"}
             collection.insert_one(post)
     if key_type == "staff":
         for i in range(key_count):
             key = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
             await ctx.send(key)
-            post = {"Key": key, "Bound": "False", "Active": "False", "Key-Type": "Staff", "Suspended": "No", "User bound to": "null", "Mac Address": "null", "IP Address": "null"}
+            post = {"Key": key, "Bound": "False", "Active": "False", "Key-Type": "Staff", "Suspended": "False", "User bound to": "null", "Mac Address": "null", "IP Address": "null", "Claimed": "Null(generated)"}
             collection.insert_one(post)
 
 #working-finished
@@ -72,10 +73,15 @@ async def bind(ctx, arg):
             embed.set_footer(text="Cobra AIO Authentication")
             await ctx.send(embed=embed)
             return
-        embed=discord.Embed(title="Cobra AIO", description="Successfully bound. Welcome to Cobra AIO.")
-        embed.set_footer(text="Cobra AIO Authentication")
+        
         collection.update_one({"Key": key}, { "$set": {"Bound": "True"}} )
         collection.update_one({"Key": key}, { "$set": {"User bound to": ctx.author.id}})
+        key = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
+        collection.update_one({"User bound to": ctx.author.id}, { "$set": {"Key": key}})
+        
+        embed=discord.Embed(title="Cobra AIO", description="Successfully bound. Welcome to Cobra AIO.")
+        embed.set_footer(text="Cobra AIO Authentication")
+        embed.add_field(name="Important", value='To ensure safety, your key has automatically been reset. Please use the !key_information command to access the new one.')
         await ctx.send(embed=embed)
     
     elif check_database == False:
@@ -87,22 +93,26 @@ async def bind(ctx, arg):
 #working-finished
 
 @bot.command()
-async def unbind(ctx, arg):
-    key = arg
+async def unbind(ctx):
     check_database_user = collection.find( {"User bound to": ctx.author.id}).count() > 0
-    check_database = collection.find( { "Key": key, "Bound": 'True' } ).count() > 0
+    check_database = collection.find( { "User bound to": ctx.author.id, "Bound": 'True' } ).count() > 0
     if check_database_user == False:
         embed=discord.Embed(title="Cobra AIO", description="You don't have a key bound.")
         embed.set_footer(text="Cobra AIO Authentication")
         await ctx.send(embed=embed)
     if check_database == True:
         try:
+            key = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
+            
+            collection.update_one({"User bound to": ctx.author.id}, { "$set": {"Key": key}})
             collection.update_one({"Key": key}, { "$set": {"Bound": "False"}})
             collection.update_one({"Key": key}, { "$set": {"User bound to": "null"}})
             collection.update_one({"Key": key}, { "$set": {"Active": "False"}})
             collection.update_one({"Key": key}, { "$set": {"Mac Address": "null"}})
             collection.update_one({"Key": key}, { "$set": {"IP Address": "null"}})
+            
             embed=discord.Embed(title="Cobra AIO", description="Successfully unbound. We hope you enjoyed your time here being apart of Cobra.")
+            embed.add_field(name="Important", value=f'Your key is {key}. This will change on the next binding to ensure safety.')
             embed.set_footer(text="Cobra AIO Authentication")
             await ctx.send(embed=embed)
         except:
@@ -138,12 +148,27 @@ async def key_information(ctx):
 
     embed=discord.Embed(title="Key Information")
     embed.add_field(name="Key", value=query_results["Key"], inline=True)
-    embed.add_field(name="Key Type", value=query_results["Key-type"], inline=True)
+    embed.add_field(name="Key Type", value=query_results["Key-Type"], inline=True)
     embed.set_footer(text="Cobra AIO Authentication")
     await ctx.send(embed=embed)
 #working-finished
 
+
 @bot.command()
+async def reset_key(ctx):
+    query = {"User bound to": ctx.author.id}
+    query_results = collection.find_one(query)
+    if query_results == None:
+        return
+
+    key = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
+    collection.update_one({"User bound to": ctx.author.id}, { "$set": {"Key": key}})
+    await ctx.send('Reset key.')
+
+
+
+@bot.command()
+@commands.has_role(775496025505792020)
 async def key_types(ctx):
     lifetime_count = collection.find( { "Key-Type": "Lifetime" } ).count()
     renewal_count = collection.find( { "Key-Type": "Renewal" } ).count()
@@ -164,6 +189,7 @@ async def key_types(ctx):
 
 
 @bot.command()
+@commands.has_role(775496025505792020)
 async def search_key(ctx, arg):
     key = arg
     query = {"Key": key}
@@ -184,6 +210,7 @@ async def search_key(ctx, arg):
 #working-finished
 
 @bot.command()
+@commands.has_role(775496025505792020)
 async def search_user(ctx, arg):
     user = arg
     query = {"User bound to": int(user)}
@@ -207,6 +234,7 @@ async def search_user(ctx, arg):
 
 
 @bot.command()
+@commands.has_role(803449976600264724)
 async def terminate(ctx, arg):
     key = arg
     query = {"Key": key}
@@ -226,6 +254,7 @@ async def terminate(ctx, arg):
 #working-finished
 
 @bot.command()
+@commands.has_role(775496025505792020)
 async def suspend(ctx, arg):
     key = arg
     query = {"Key": key}
@@ -245,6 +274,7 @@ async def suspend(ctx, arg):
 #working-finished
 
 @bot.command()
+@commands.has_role(775496025505792020)
 async def unsuspend(ctx, arg):
     key = arg
     query = {"Key": key}
@@ -262,6 +292,7 @@ async def unsuspend(ctx, arg):
 
 
 @bot.command()
+@commands.has_role(775496025505792020)
 async def key_list(ctx):
     key_list = []
     keys = collection.distinct("Key")
@@ -272,10 +303,44 @@ async def key_list(ctx):
 
 
 #working-needs-improvements
-    
-    
+
+@bot.command()
+@commands.has_role(775496025505792020)
+async def generate_release(ctx, arg, arg2):
+    number = int(arg)
+    release_type = arg2
+    for i in range(number):
+        key = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8)) + '-' + ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
+        post = {"Key": key, "Bound": "False", "Active": "False", "Key-Type": release_type, "Suspended": "False", "User bound to": "null", "Mac Address": "null", "IP Address": "null", "Claimed": "False(release)"}
+        collection.insert_one(post)
+#working-finished
+
+@bot.command()
+async def claim(ctx):
+    query = {"Claimed": "False(release)"}
+    query_results = collection.find_one(query)
+    check_database_user = collection.find( {"User bound to": ctx.author.id}).count() > 0
+    if check_database_user == True:
+            embed=discord.Embed(title="Cobra AIO", description="You already have a key bound.")
+            embed.set_footer(text="Cobra AIO Authentication")
+            await ctx.send(embed=embed)
+            return
+    if query_results == None:
+        await ctx.send('No release currently or OOS.')
+    else:
+        key = query_results["Key"]
+        embed=discord.Embed(title="Cobra AIO", description="Successfully generated and bound. Welcome to Cobra AIO.")
+        embed.add_field(name="Key",value=key, inline=True)
+        embed.set_footer(text="Cobra AIO Authentication")
+        collection.update_one({"Key": key}, { "$set": {"Bound": "True"}} )
+        collection.update_one({"Key": key}, { "$set": {"User bound to": ctx.author.id}})
+        collection.update_one({"Key": key }, { "$set": {"Claimed": "True(release)"}})
+        await ctx.send(embed=embed)
+#working-finished
+
         
 
 
 
-bot.run('Nzg5OTg2NzA4OTM0NDkyMTkw.X96CdA.VGvvIDUofs9g7bqIqEHzR5o9Shs')
+bot.run('')
+#left blank because of security
